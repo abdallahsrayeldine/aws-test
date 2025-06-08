@@ -8,7 +8,7 @@ phases:
     commands:
       - echo "Tagging Docker image..."
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}
-      - REPO_URI=public.ecr.aws/k8l5m5p3/public-repo:latest
+      - REPO_URI=public.ecr.aws/k8l5m5p3/public-repo
   build:
     commands:
       - echo "Building Docker image..."
