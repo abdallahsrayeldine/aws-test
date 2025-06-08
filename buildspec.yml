@@ -23,4 +23,4 @@ phases:
           $REPO_URI:$IMAGE_TAG > package.json
 artifacts:
   files:
-    - imagedefinitions.json
+    - package.json
