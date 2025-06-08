@@ -20,7 +20,7 @@ phases:
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
       - printf '[{"name":"my-node-container","imageUri":"%s"}]' \
-          $REPO_URI:$IMAGE_TAG > imagedefinitions.json
+          $REPO_URI:$IMAGE_TAG > package.json
 artifacts:
   files:
     - imagedefinitions.json
