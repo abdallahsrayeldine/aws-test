@@ -6,19 +6,22 @@ phases:
       nodejs: 22
   pre_build:
     commands:
-      - echo "Logging into ECR..."
-      - aws ecr get-login-password --region us-east-1 \
-        | docker login --username AWS --password-stdin 863518413226.dkr.ecr.us-east-1.amazonaws.com
-      - REPOSITORY_URI=863518413226.dkr.ecr.us-east-1.amazonaws.com/test-ecr
-      - IMAGE_TAG=latest
+      - echo "Tagging Docker image..."
+      - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}
+      - REPO_URI=public.ecr.aws/k8l5m5p3/public-repo:latest
   build:
     commands:
-      - docker build -t 863518413226.dkr.ecr.us-east-1.amazonaws.com/test-ecr:latest .
-      - docker push 863518413226.dkr.ecr.us-east-1.amazonaws.com/test-ecr:latest
+      - echo "Building Docker image..."
+      - docker build -t $REPO_URI:latest .
+      - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
   post_build:
     commands:
-      - printf '[{"name":"app","imageUri":"%s"}]' \
-          863518413226.dkr.ecr.us-east-1.amazonaws.com/test-ecr:latest > imagedefinitions.json
+      - echo "Pushing Docker images to public ECR..."
+      - aws ecr-public get-login-password --region us-east-1 docker login --username AWS --password-stdin public.ecr.aws
+      - docker push $REPO_URI:latest
+      - docker push $REPO_URI:$IMAGE_TAG
+      - printf '[{"name":"public-app","imageUri":"%s"}]' \
+          $REPO_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
   files:
