@@ -16,7 +16,7 @@ connection.connect(error => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Hello from Node.js app connected to MySQL!');
+  res.send('Hello from Node.js app connected to MySQL! TESTING PIPELINE');
 });
 
 app.listen(port, () => {
