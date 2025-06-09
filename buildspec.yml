@@ -26,7 +26,3 @@ phases:
       - echo "Updating ECS service..."
       - aws ecs update-service --cluster cluster-2 --service task-2-service-hnn4kreu --force-new-deployment
       - echo "Deployment triggered."
-
-artifacts:
-  files:
-    - imagedefinitions.json
