@@ -25,7 +25,6 @@ phases:
 
       - echo "Updating ECS service..."
       - aws ecs update-service --cluster cluster-2 --service task-2-service-hnn4kreu --force-new-deployment
-      - aws ecs wait services-stable --cluster cluster-2 --services task-2-service-hnn4kreu
       - echo "Deployment triggered."
 
 artifacts:
