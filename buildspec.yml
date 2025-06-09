@@ -34,7 +34,7 @@ phases:
         NEW_TASK_DEF=$(aws ecs register-task-definition \
           --cli-input-json "$(aws ecs describe-task-definition \
             --task-definition $CURRENT_TASK_DEF \
-            --query 'taskDefinition | {family:family, containerDefinitions:containerDefinitions, volumes:volumes, networkMode:networkMode, cpu:cpu, memory:memory, executionRoleArn:executionRoleArn, taskRoleArn:taskRoleArn, requiresCompatibilities:requiresCompatibilities}')" \
+            --query 'taskDefinition | {family:family, containerDefinitions:containerDefinitions, volumes:volumes, networkMode:awsvpc, cpu:cpu, memory:memory, executionRoleArn:arn:aws:iam::863518413226:role/ecsTaskExecutionRole, requiresCompatibilities:requiresCompatibilities}')" \
           --query 'taskDefinition.taskDefinitionArn' \
           --output text)
       - |
