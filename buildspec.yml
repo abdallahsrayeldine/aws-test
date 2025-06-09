@@ -9,9 +9,7 @@ phases:
       - echo "Logging into ECR..."
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}
       - REPO_URI=public.ecr.aws/k8l5m5p3/public-repo
-      - aws ecr-public get-login-password --region us-east-1 \
-          | docker login --username AWS --password-stdin $REPO_URI
-      - echo "Logged in. Repo URI: $REPO_URI"
+      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $REPO_URI
 
   build:
     commands:
