@@ -4,11 +4,6 @@ phases:
   install:
     runtime-versions:
       nodejs: 22
-    commands:
-      - echo "Installing jq and AWS CLI..."
-      - yum update -y
-      - yum install -y jq aws-cli
-
   pre_build:
     commands:
       - echo "Logging into ECR..."
