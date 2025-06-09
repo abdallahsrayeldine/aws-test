@@ -4,23 +4,53 @@ phases:
   install:
     runtime-versions:
       nodejs: 22
+    commands:
+      - echo "Installing jq and AWS CLI..."
+      - yum update -y
+      - yum install -y jq aws-cli
+
   pre_build:
     commands:
-      - echo "Tagging Docker image..."
+      - echo "Logging into ECR..."
       - IMAGE_TAG=${CODEBUILD_RESOLVED_SOURCE_VERSION::7}
       - REPO_URI=public.ecr.aws/k8l5m5p3/public-repo
+      - aws ecr-public get-login-password --region us-east-1 \
+          | docker login --username AWS --password-stdin $REPO_URI
+      - echo "Logged in. Repo URI: $REPO_URI"
+
   build:
     commands:
       - echo "Building Docker image..."
       - docker build -t $REPO_URI:latest .
       - docker tag $REPO_URI:latest $REPO_URI:$IMAGE_TAG
+
   post_build:
     commands:
-      - echo "Pushing Docker images to public ECR..."
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+      - echo "Pushing images..."
       - docker push $REPO_URI:latest
       - docker push $REPO_URI:$IMAGE_TAG
-      - printf '[{"name":"public-app","imageUri":"%s"}]' "$REPO_URI:$IMAGE_TAG" > imagedefinitions.json
+
+      - echo "Updating ECS service..."
+      - |
+        CURRENT_TASK_DEF=$(aws ecs describe-services \
+          --cluster cluster-2 \
+          --services task-2-service-hnn4kreu \
+          --query 'services[0].taskDefinition' \
+          --output text)
+      - |
+        NEW_TASK_DEF=$(aws ecs register-task-definition \
+          --cli-input-json "$(aws ecs describe-task-definition \
+            --task-definition $CURRENT_TASK_DEF \
+            --query 'taskDefinition | {family:family, containerDefinitions:containerDefinitions, volumes:volumes, networkMode:networkMode, cpu:cpu, memory:memory, executionRoleArn:executionRoleArn, taskRoleArn:taskRoleArn, requiresCompatibilities:requiresCompatibilities}')" \
+          --query 'taskDefinition.taskDefinitionArn' \
+          --output text)
+      - |
+        aws ecs update-service \
+          --cluster cluster-2 \
+          --service task-2-service-hnn4kreu \
+          --task-definition $NEW_TASK_DEF
+
+      - echo "Deployment triggered."
 
 artifacts:
   files:
